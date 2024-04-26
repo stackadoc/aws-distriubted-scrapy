@@ -12,7 +12,15 @@ scrapy = "^2.11.1"
 scrapyd = "^1.4.3"
 sqlalchemy = "^2.0.29"
 alembic = "^1.13.1"
+psycopg2 = "^2.9.9"
+freezegun = "^1.5.0"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+isort = "^5.13.2"
+flake8 = "^7.0.0"
+pre-commit = "^3.7.0"
 
 [build-system]
 requires = ["poetry-core"]
