@@ -10,6 +10,8 @@ packages = [{include = "aws_distriubted_scrapy"}]
 python = "^3.10"
 scrapy = "^2.11.1"
 scrapyd = "^1.4.3"
+sqlalchemy = "^2.0.29"
+alembic = "^1.13.1"
 
 
 [build-system]
