@@ -35,9 +35,7 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-terraform/install/**
-terraform/archives/**
-
-terraform/secrets/*.env
 *.lock
 *.lock.hcl
+
+infrastructure/.terraform/**
