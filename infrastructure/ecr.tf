@@ -1,9 +1,9 @@
-resource "aws_ecr_repository" "stackabot_repo" {
-  name = "stackabot-repo"
+resource "aws_ecr_repository" "distributed_scraping_repository" {
+  name = "distributed-craping-repository"
 }
 
-resource "docker_image" "stackabot_docker_image" {
-  name = "${aws_ecr_repository.stackabot_repo.repository_url}:latest"
+resource "docker_image" "distributed_scraping_docker_image" {
+  name = "${aws_ecr_repository.distributed_scraping_repository.repository_url}:latest"
   build {
     context = var.dockerfile_path
   }
@@ -13,5 +13,5 @@ resource "docker_image" "stackabot_docker_image" {
 }
 
 resource "docker_registry_image" "image_handler" {
-  name = docker_image.stackabot_docker_image.name
+  name = docker_image.distributed_scraping_docker_image.name
 }

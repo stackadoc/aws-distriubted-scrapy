@@ -1,10 +1,10 @@
-resource "aws_ecs_cluster" "stackabot_cluster" {
-  name = "stackabot-cluster"
+resource "aws_ecs_cluster" "distributed_scraping_cluster" {
+  name = "distributed-scraping-cluster"
 
 }
 
 resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
-  name = "stackabot-capacity-provider"
+  name = "distributed-scraping-capacity-provider"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.stackabot_autoscaling_group.arn
@@ -19,8 +19,8 @@ resource "aws_ecs_capacity_provider" "ecs_capacity_provider" {
   }
 }
 
-resource "aws_ecs_cluster_capacity_providers" "example" {
-  cluster_name = aws_ecs_cluster.stackabot_cluster.name
+resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
+  cluster_name = aws_ecs_cluster.distributed_scraping_cluster.name
 
   capacity_providers = [aws_ecs_capacity_provider.ecs_capacity_provider.name]
 
@@ -31,14 +31,14 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "client_log_group" {
-  name = "/ecs/scrapy-client-logs"
+resource "aws_cloudwatch_log_group" "scrapy_log_group" {
+  name = "/ecs/scrapy-logs"
   skip_destroy = true
   retention_in_days = 7
 }
 
 resource "aws_ecs_task_definition" "scrapy_task_definition" {
-  family             = "scrapy-client"
+  family             = "scrapy-task"
   network_mode       = "awsvpc"
   task_role_arn      = aws_iam_role.ecs_task_role.arn
   execution_role_arn = aws_iam_role.ecs_exec_role.arn
@@ -60,11 +60,12 @@ resource "aws_ecs_task_definition" "scrapy_task_definition" {
       linuxParameters = {
         initProcessEnabled = true
       }
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "${aws_cloudwatch_log_group.server_log_group.id}"
+          awslogs-group         = "${aws_cloudwatch_log_group.scrapy_log_group.id}"
           awslogs-region        = "eu-west-3"
           awslogs-stream-prefix = "ecs"
         }
@@ -78,7 +79,7 @@ resource "aws_ecs_task_definition" "scrapy_task_definition" {
 
 resource "aws_ecs_service" "scrapy_service" {
   name                   = "sc-service"
-  cluster                = aws_ecs_cluster.stackabot_cluster.id
+  cluster                = aws_ecs_cluster.distributed_scraping_cluster.id
   task_definition        = aws_ecs_task_definition.scrapy_task_definition.arn
   desired_count          = 0
   enable_execute_command = true
