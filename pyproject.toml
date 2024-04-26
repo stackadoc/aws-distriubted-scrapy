@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "aws-distriubted-scrapy"
+version = "0.1.0"
+description = ""
+authors = ["amin saffar <amin@stackadoc.com>"]
+readme = "README.md"
+packages = [{include = "aws_distriubted_scrapy"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+scrapy = "^2.11.1"
+scrapyd = "^1.4.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
