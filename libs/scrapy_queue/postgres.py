@@ -1,7 +1,8 @@
 import json
 from datetime import datetime
 
-from config import config
+from sqlalchemy import text
+
 from libs.database.db_data.db_data_helper import class_session_handler
 from libs.database.db_data.db_data_models import SpiderJob
 
@@ -24,7 +25,7 @@ class PostgresPriorityQueue(object):
 
     @class_session_handler
     def pop(self):
-        self.session.execute(f"LOCK TABLE {self._table_name} IN SHARE ROW EXCLUSIVE MODE")
+        self.session.execute(text(f"LOCK TABLE {self._table_name} IN SHARE ROW EXCLUSIVE MODE"))
         record = (
             self.session.query(SpiderJob)
             .filter(SpiderJob.status == "pending")

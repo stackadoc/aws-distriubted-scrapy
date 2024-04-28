@@ -1,6 +1,3 @@
-import os
-from unittest.mock import patch
-
 from scrapyd.config import Config
 from scrapyd.interfaces import IJobStorage, ISpiderQueue
 from scrapyd.jobstorage import Job
@@ -15,7 +12,6 @@ from tests.utils import TestCaseDB
 class SpiderQueueTest(TestCaseDB):
     """This test case also supports queues with deferred methods."""
 
-    @patch.dict(os.environ, {"DB_EXECUTION_NAME": "DEV_TEST"}, clear=True)
     def setUp(self):
         super().setUp()
         self.q = spider_queue.PostgresSpiderQueue(
@@ -34,7 +30,6 @@ class SpiderQueueTest(TestCaseDB):
     def test_interface(self):
         verifyObject(ISpiderQueue, self.q)
 
-    @patch.dict(os.environ, {"DB_EXECUTION_NAME": "DEV_TEST"}, clear=True)
     @inlineCallbacks
     def test_add_pop_count(self):
         c = yield maybeDeferred(self.q.count)
@@ -51,7 +46,6 @@ class SpiderQueueTest(TestCaseDB):
         c = yield maybeDeferred(self.q.count)
         self.assertEqual(c, 0)
 
-    @patch.dict(os.environ, {"DB_EXECUTION_NAME": "DEV_TEST"}, clear=True)
     @inlineCallbacks
     def test_list(self):
         actual = yield maybeDeferred(self.q.list)
@@ -63,7 +57,6 @@ class SpiderQueueTest(TestCaseDB):
         actual = yield maybeDeferred(self.q.list)
         self.assertEqual(actual, [self.msg, self.msg])
 
-    @patch.dict(os.environ, {"DB_EXECUTION_NAME": "DEV_TEST"}, clear=True)
     @inlineCallbacks
     def test_clear(self):
         yield maybeDeferred(self.q.add, self.name, self.priority, **self.args)
