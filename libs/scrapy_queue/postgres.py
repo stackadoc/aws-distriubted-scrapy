@@ -10,14 +10,12 @@ class PostgresPriorityQueue(object):
     def __init__(self, session=None):
         self.session = session
         self._table_name = SpiderJob.__tablename__
-        self.execution_ref = config.DB_EXECUTION_NAME
 
     @class_session_handler
     def put(self, message, priority=0.0):
         record = SpiderJob(
             spider=message.get("name"),
             job=message.get("_job"),
-            execution_ref=self.execution_ref,
             priority=priority,
             status="pending",
             message=self.encode(message),
@@ -29,7 +27,7 @@ class PostgresPriorityQueue(object):
         self.session.execute(f"LOCK TABLE {self._table_name} IN SHARE ROW EXCLUSIVE MODE")
         record = (
             self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "pending", SpiderJob.execution_ref == self.execution_ref)
+            .filter(SpiderJob.status == "pending")
             .order_by(SpiderJob.priority.desc())
             .first()
         )
@@ -41,11 +39,7 @@ class PostgresPriorityQueue(object):
 
     @class_session_handler
     def remove(self, func):
-        records = (
-            self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "pending", SpiderJob.execution_ref == self.execution_ref)
-            .all()
-        )
+        records = self.session.query(SpiderJob).filter(SpiderJob.status == "pending").all()
         n = 0
         for record in records:
             if func(self.decode(record.message)):
@@ -55,23 +49,17 @@ class PostgresPriorityQueue(object):
 
     @class_session_handler
     def clear(self):
-        self.session.query(SpiderJob).filter(
-            SpiderJob.status == "pending", SpiderJob.execution_ref == self.execution_ref
-        ).delete()
+        self.session.query(SpiderJob).filter(SpiderJob.status == "pending").delete()
 
     @class_session_handler
     def __len__(self):
-        return (
-            self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "pending", SpiderJob.execution_ref == self.execution_ref)
-            .count()
-        )
+        return self.session.query(SpiderJob).filter(SpiderJob.status == "pending").count()
 
     @class_session_handler
     def __iter__(self):
         records = (
             self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "pending", SpiderJob.execution_ref == self.execution_ref)
+            .filter(SpiderJob.status == "pending")
             .order_by(SpiderJob.priority.desc())
             .all()
         )
@@ -89,7 +77,6 @@ class PostgresPriorityQueue(object):
 class PostgresFinishedJobs(object):
     def __init__(self, session=None):
         self.session = session
-        self.execution_ref = config.DB_EXECUTION_NAME
 
     @class_session_handler
     def add(self, job):
@@ -98,7 +85,6 @@ class PostgresFinishedJobs(object):
             .filter(
                 SpiderJob.spider == job.spider,
                 SpiderJob.job == job.job,
-                SpiderJob.execution_ref == self.execution_ref,
             )
             .first()
         )
@@ -115,7 +101,6 @@ class PostgresFinishedJobs(object):
                 start_time=job.start_time,
                 end_time=job.end_time,
                 status="terminated",
-                execution_ref=self.execution_ref,
             )
         self.session.add(record)
 
@@ -128,7 +113,6 @@ class PostgresFinishedJobs(object):
                     self.session.query(SpiderJob.id)
                     .filter(
                         SpiderJob.status == "terminated",
-                        SpiderJob.execution_ref == self.execution_ref,
                     )
                     .order_by(SpiderJob.end_time)
                     .limit(limit)
@@ -137,23 +121,17 @@ class PostgresFinishedJobs(object):
                     synchronize_session=False
                 )
         else:
-            self.session.query(SpiderJob).filter(
-                SpiderJob.status == "terminated", SpiderJob.execution_ref == self.execution_ref
-            ).delete()
+            self.session.query(SpiderJob).filter(SpiderJob.status == "terminated").delete()
 
     @class_session_handler
     def __len__(self):
-        return (
-            self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "terminated", SpiderJob.execution_ref == self.execution_ref)
-            .count()
-        )
+        return self.session.query(SpiderJob).filter(SpiderJob.status == "terminated").count()
 
     @class_session_handler
     def __iter__(self):
         records = (
             self.session.query(SpiderJob)
-            .filter(SpiderJob.status == "terminated", SpiderJob.execution_ref == self.execution_ref)
+            .filter(SpiderJob.status == "terminated")
             .order_by(SpiderJob.end_time.desc())
             .all()
         )

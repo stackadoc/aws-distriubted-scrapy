@@ -11,7 +11,6 @@ from sqlalchemy.orm import sessionmaker
 
 from libs.database.db_data.db_data_models import Base
 
-
 DATABASE = {
     "ENGINE": "postgresql",
     "NAME": "test_database",
@@ -21,9 +20,11 @@ DATABASE = {
     "PORT": "5432",
 }
 
+
 def mock_fetch_airtable_all_multithreaded(table_name, *args, **kwargs):
     with open(f"tests/test_data/airtable/{table_name}_table.json", "r") as file:
         return json.load(file)
+
 
 def create_test_database():
     conn = psycopg2.connect(
@@ -38,6 +39,7 @@ def create_test_database():
     cur.execute(f"CREATE DATABASE {DATABASE['NAME']}")
     cur.close()
     conn.close()
+
 
 def delete_test_database():
     conn = psycopg2.connect(

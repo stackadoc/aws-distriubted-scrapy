@@ -9,6 +9,7 @@ except (ModuleNotFoundError, ImportError):
     print("Unable to load_dotenv")
     print(traceback.format_exc())
 
+
 def get_db_uri(domain: str, environment: str = None, is_superuser: bool = False) -> str:
     """
     Get the URI of a database
@@ -75,6 +76,7 @@ def get_db_uri(domain: str, environment: str = None, is_superuser: bool = False)
     db_password = db_config["password"]
 
     return f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+
 
 DATA_DB_URI = get_db_uri(
     domain="DATA", environment=os.environ.get("ENVIRONMENT"), is_superuser=False
