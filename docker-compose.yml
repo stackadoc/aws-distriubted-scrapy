@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  scrapyd:
+    <<: &scrapyd_template
+      build:
+        context: .
+        dockerfile: ./docker/Dockerfile
+      command: >
+        /bin/sh /code/scrapyd.sh
+      volumes:
+        - /tmp/stackabot_cache:/data/stackabot_cache
+        - /tmp/logs:/data/logs
+        - /tmp/last_execution_cache:/data/last_execution_cache
+      env_file:
+        - ../.env
+      environment:
+        - ARTICLE_FORMATTER_HOST=formatter-server
+        - ARTICLE_FORMATTER_PORT=4567
+      ports:
+        - 6800:6800
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+
+  scrapyd2:
+    <<: *scrapyd_template
+    ports:
+      - 6801:6800

@@ -16,9 +16,8 @@ WORKDIR /code
 COPY poetry.lock pyproject.toml /code/
 RUN poetry install --no-interaction --no-ansi
 
-
 COPY scraper/ /code/scraper/
 COPY scrapyd.conf /code/scrapyd.conf
 COPY scrapyd.sh /code/scrapyd.sh
 
-ENTRYPOINT ["/bin/sh", "/code/scrapyd.sh"]
+ENTRYPOINT ["/code/scrapyd.sh"]
